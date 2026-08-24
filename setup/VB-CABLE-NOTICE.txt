@@ -1,0 +1,14 @@
+VB-CABLE is required for sending AudioMicPad's music and microphone mix into
+games, Discord, or other voice-chat applications.
+
+VB-CABLE is not included with this installer. If it is not already installed,
+the final installer page can open the official VB-Audio download page for you:
+
+https://vb-audio.com/Cable/
+
+VB-CABLE is donationware published by VB-Audio Software. Please consider a
+donation if you find it useful. Run the correct VB-CABLE setup program as an
+administrator, then restart Windows before using AudioMicPad.
+
+After restarting, select "CABLE Input" as AudioMicPad's game output and
+"CABLE Output" as the microphone/input in your game or voice-chat application.

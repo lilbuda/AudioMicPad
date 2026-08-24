@@ -1,0 +1,49 @@
+name: Build Windows app
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore --runtime win-x64
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Publish self-contained application
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: dotnet publish --no-restore --configuration Release --runtime win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
+
+      - name: Upload tagged build
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/upload-artifact@v4
+        with:
+          name: AudioMicPad-win-x64
+          path: publish/AudioMicPad.exe
+          if-no-files-found: error
+          retention-days: 14

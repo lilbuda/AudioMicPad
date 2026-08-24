@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>AudioMicPad</AssemblyName>
+    <RootNamespace>AudioMicPad</RootNamespace>
+    <ApplicationIcon>audiomicpad.ico</ApplicationIcon>
+    <Version>1.1.0</Version>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+    <Authors>lilbuda</Authors>
+    <Company>lilbuda</Company>
+    <Description>Mix a physical microphone with music and sound effects for voice chat through VB-CABLE.</Description>
+    <Copyright>Copyright © 2026 lilbuda</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/lilbuda/AudioMicPad</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="NAudio" Version="2.2.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="audiomicpad.ico" />
+    <Resource Include="audiomicpad.png" />
+  </ItemGroup>
+</Project>

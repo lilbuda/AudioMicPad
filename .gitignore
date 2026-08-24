@@ -1,0 +1,43 @@
+# .NET build output
+bin/
+obj/
+publish/
+installer/
+artifacts/
+
+# Visual Studio, VS Code, and JetBrains
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+_ReSharper*/
+*.DotSettings.user
+
+# Test and coverage output
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+# Local configuration and logs
+.env
+.env.*
+!.env.example
+*.log
+*.tmp
+*.bak
+
+# Code-signing certificates and private keys
+*.pfx
+*.p12
+*.pem
+*.key
+*.snk
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+Desktop.ini

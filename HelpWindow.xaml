@@ -1,0 +1,107 @@
+<Window x:Class="AudioMicPad.HelpWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="AudioMicPad help"
+        Icon="audiomicpad.ico"
+        Width="720"
+        Height="760"
+        MinWidth="560"
+        MinHeight="520"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner">
+  <Grid Margin="20">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <Grid Margin="2,0,2,16">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Image Width="46"
+             Height="46"
+             Source="audiomicpad.png"
+             Stretch="Uniform"
+             Margin="0,0,12,0"
+             AutomationProperties.Name="AudioMicPad logo"/>
+      <StackPanel Grid.Column="1" VerticalAlignment="Center">
+        <TextBlock Text="How to use AudioMicPad" FontSize="24" FontWeight="Bold"/>
+        <TextBlock Text="Voice, music, and sound effects through one virtual microphone."
+                   Style="{StaticResource SecondaryTextStyle}"
+                   Margin="0,3,0,0"/>
+      </StackPanel>
+    </Grid>
+
+    <Border Grid.Row="1" Style="{StaticResource CardStyle}" Padding="4">
+      <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="14,12,8,12">
+        <ScrollViewer.Resources>
+          <Style TargetType="ScrollBar" BasedOn="{StaticResource ThemedVerticalScrollBarStyle}"/>
+        </ScrollViewer.Resources>
+        <StackPanel>
+          <TextBlock Text="What the app does" Style="{StaticResource SectionTitleStyle}"/>
+          <TextBlock TextWrapping="Wrap"
+                     Text="AudioMicPad mixes your physical microphone with songs and sound effects, then sends the combined audio to VB-CABLE for games or voice chat. Music can also be monitored separately in your headset; your microphone is never sent to the headset."/>
+
+          <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,20,0,18"/>
+          <TextBlock Text="1. Install and route VB-CABLE" Style="{StaticResource SectionTitleStyle}"/>
+          <TextBlock TextWrapping="Wrap" LineHeight="22">
+            <Run Text="1. Install the standard VB-CABLE driver from "/>
+            <Hyperlink NavigateUri="https://vb-audio.com/Cable/"
+                       Foreground="{DynamicResource AccentBrush}"
+                       RequestNavigate="Link_RequestNavigate">vb-audio.com/Cable</Hyperlink>
+            <Run Text=" and restart Windows.&#x0a;2. In AudioMicPad, choose your real microphone under Microphone.&#x0a;3. Choose CABLE Input under Game output.&#x0a;4. Choose your headphones or speakers under Headset / speaker monitor.&#x0a;5. In Discord or your game, choose CABLE Output as the microphone/input."/>
+          </TextBlock>
+          <Border Background="{DynamicResource ElevatedSurfaceBrush}"
+                  BorderBrush="{DynamicResource BorderBrush}"
+                  BorderThickness="1"
+                  CornerRadius="7"
+                  Padding="12"
+                  Margin="0,12,0,0">
+            <TextBlock TextWrapping="Wrap">
+              <Run FontWeight="SemiBold" Text="Remember: "/>
+              <Run Text="CABLE Input is AudioMicPad's output destination. CABLE Output is the microphone selected in the receiving app."/>
+            </TextBlock>
+          </Border>
+
+          <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,20,0,18"/>
+          <TextBlock Text="2. Start the audio engine" Style="{StaticResource SectionTitleStyle}"/>
+          <TextBlock TextWrapping="Wrap"
+                     Text="Select the three devices, enable headset monitoring if wanted, and press Start / restart audio. Use this button again after changing a device. The status panel reports whether the engine started successfully."/>
+
+          <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,20,0,18"/>
+          <TextBlock Text="3. Add and play sounds" Style="{StaticResource SectionTitleStyle}"/>
+          <TextBlock TextWrapping="Wrap" LineHeight="22"
+                     Text="Choose a music folder to load supported audio files. Select a file and press Play, or double-click it to play it as a sound effect. Pause, Stop, Previous, Next, Loop song, and Loop playlist control playback."/>
+
+          <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,20,0,18"/>
+          <TextBlock Text="Volume controls" Style="{StaticResource SectionTitleStyle}"/>
+          <TextBlock TextWrapping="Wrap" LineHeight="22"
+                     Text="Voice volume changes only your microphone level sent to CABLE Input. Music / sounds to mic controls what other people hear. Music / sounds to headset independently controls what you hear. Changing the headset volume does not change the level sent to voice chat."/>
+
+          <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,20,0,18"/>
+          <TextBlock Text="Keyboard shortcuts" Style="{StaticResource SectionTitleStyle}"/>
+          <TextBlock TextWrapping="Wrap" LineHeight="22"
+                     Text="Select a sound and choose Assign shortcut, then press the desired key combination. Playback controls have their own assignable shortcuts in the right panel. Shortcuts are global and work while another application is focused. Press Escape while assigning to cancel, or use Clear to remove a shortcut."/>
+
+          <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,20,0,18"/>
+          <TextBlock Text="Settings and troubleshooting" Style="{StaticResource SectionTitleStyle}"/>
+          <TextBlock TextWrapping="Wrap" LineHeight="22"
+                     Text="AudioMicPad automatically remembers your folder, devices, volumes, theme, shortcuts, and engine options. If audio stops after disconnecting a device, select the device again and restart the audio engine. If other people hear only your voice, confirm that the receiving app uses CABLE Output—not your physical microphone."/>
+        </StackPanel>
+      </ScrollViewer>
+    </Border>
+
+    <Button Grid.Row="2"
+            Content="Close"
+            Style="{StaticResource PrimaryButtonStyle}"
+            Width="100"
+            Margin="0,16,0,0"
+            HorizontalAlignment="Right"
+            IsDefault="True"
+            IsCancel="True"
+            Click="Close_Click"/>
+  </Grid>
+</Window>
