@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">AudioMicPad</title>
+  <rect width="64" height="64" rx="18" fill="#687ff4"/>
+  <g fill="none" stroke="#fff" stroke-linecap="round" stroke-width="2.4">
+    <path d="M14 26v12M20 20v24M26 24v16M32 16v32M38 22v20M44 19v26M50 27v10"/>
+  </g>
+</svg>
