@@ -6,6 +6,8 @@ AudioMicPad is a small, open-source Windows soundboard and audio mixer for this 
 
 It also lets you monitor music and sound effects through your normal headset without routing your voice back to yourself.
 
+**[Visit the official AudioMicPad website](https://audiomicpad.vercel.app/)** for downloads, release notes, and the complete setup guide.
+
 ## Features
 
 - Mixes a physical microphone with music or sound effects and sends the result to **CABLE Input**.
