@@ -21,7 +21,7 @@ if ($LASTEXITCODE -ne 0) {
     throw "Inno Setup failed with exit code $LASTEXITCODE."
 }
 
-$installerPath = "$PSScriptRoot\installer\AudioMicPad-Setup-v1.1.0.exe"
+$installerPath = "$PSScriptRoot\installer\AudioMicPad-Setup-v1.1.1.exe"
 if (-not (Test-Path -LiteralPath $installerPath)) {
     throw "The installer was not created at $installerPath."
 }

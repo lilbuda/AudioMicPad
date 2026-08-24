@@ -215,7 +215,19 @@
               <TextBlock Text="Voice to virtual mic"/>
               <TextBlock Grid.Column="1" Text="{Binding ElementName=MicVolume, Path=Value, StringFormat={}{0:P0}}" Style="{StaticResource SecondaryTextStyle}"/>
             </Grid>
-            <Slider x:Name="MicVolume" AutomationProperties.Name="Voice volume to virtual mic" Minimum="0" Maximum="1.5" Value="1" ValueChanged="MicVolume_ValueChanged"/>
+            <Slider x:Name="MicVolume"
+                    AutomationProperties.Name="Voice volume to virtual mic"
+                    AutomationProperties.HelpText="Values above 100 percent boost a quiet microphone and may amplify background noise."
+                    Minimum="0"
+                    Maximum="5"
+                    SmallChange="0.05"
+                    LargeChange="0.25"
+                    Value="1"
+                    ValueChanged="MicVolume_ValueChanged"/>
+            <TextBlock Text="Use values above 100% to boost a quiet mic. Very high gain may add noise or distortion."
+                       Style="{StaticResource SecondaryTextStyle}"
+                       FontSize="11"
+                       Margin="0,3,0,0"/>
 
             <Grid Margin="0,13,0,0">
               <Grid.ColumnDefinitions>

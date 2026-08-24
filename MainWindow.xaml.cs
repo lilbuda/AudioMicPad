@@ -159,7 +159,7 @@ public partial class MainWindow : Window
             ?? outs.FirstOrDefault(d => !d.Name.Contains("CABLE Input", StringComparison.OrdinalIgnoreCase));
 
         MonitorBoxEnabled.IsChecked = _settings.MonitorEnabled;
-        MicVolume.Value = _settings.MicVolume;
+        MicVolume.Value = Math.Clamp(_settings.MicVolume, MicVolume.Minimum, MicVolume.Maximum);
         MusicToMicVolume.Value = _settings.MusicToMicVolume ?? _settings.SoundVolume;
         MusicToHeadsetVolume.Value = _settings.MusicToHeadsetVolume ?? _settings.SoundVolume;
     }

@@ -79,7 +79,7 @@
           <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,20,0,18"/>
           <TextBlock Text="Volume controls" Style="{StaticResource SectionTitleStyle}"/>
           <TextBlock TextWrapping="Wrap" LineHeight="22"
-                     Text="Voice volume changes only your microphone level sent to CABLE Input. Music / sounds to mic controls what other people hear. Music / sounds to headset independently controls what you hear. Changing the headset volume does not change the level sent to voice chat."/>
+                     Text="Voice volume changes only your microphone level sent to CABLE Input. It can boost a quiet microphone up to 500%; very high gain may also amplify background noise or cause distortion. Music / sounds to mic controls what other people hear. Music / sounds to headset independently controls what you hear. Changing the headset volume does not change the level sent to voice chat."/>
 
           <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,20,0,18"/>
           <TextBlock Text="Keyboard shortcuts" Style="{StaticResource SectionTitleStyle}"/>

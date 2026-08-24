@@ -10,7 +10,7 @@ It also lets you monitor music and sound effects through your normal headset wit
 
 - Mixes a physical microphone with music or sound effects and sends the result to **CABLE Input**.
 - Sends music and sound effects—but not microphone audio—to a selected headset or speaker.
-- Independent voice, virtual-microphone music, and headset-monitor music volume controls.
+- Independent voice, virtual-microphone music, and headset-monitor music volume controls, with up to 500% voice gain for quiet microphones.
 - Supports WAV, MP3, M4A, AAC, WMA, FLAC, and OGG files.
 - Play, pause, stop, previous, next, loop-song, and loop-playlist controls.
 - Assignable global shortcuts for sounds and playback controls.
@@ -57,7 +57,7 @@ Install [Inno Setup](https://jrsoftware.org/isdl.php), then run:
 powershell -ExecutionPolicy Bypass -File .\build-installer.ps1
 ```
 
-The installer is created at `installer\AudioMicPad-Setup-v1.1.0.exe`. It requests administrator permission because Program Files is protected. If VB-CABLE is not detected, the installer offers to open its official download page; the VB-CABLE driver is not bundled.
+The installer is created at `installer\AudioMicPad-Setup-v1.1.1.exe`. It requests administrator permission because Program Files is protected. If VB-CABLE is not detected, the installer offers to open its official download page; the VB-CABLE driver is not bundled.
 
 ## Privacy
 
