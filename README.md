@@ -25,6 +25,12 @@ It also lets you monitor music and sound effects through your normal headset wit
 
 The packaged application is self-contained, so users do not need to install .NET separately.
 
+## Download
+
+Download the latest Windows installer from the [AudioMicPad v1.1.1 release](https://github.com/lilbuda/AudioMicPad/releases/download/v1.1.1/AudioMicPad-Setup-v1.1.1.exe).
+
+Because the installer is not currently code-signed, Windows may identify its publisher as unknown or show a Microsoft Defender SmartScreen warning. Only download AudioMicPad from this repository's official Releases page.
+
 ## Audio routing
 
 VB-CABLE's **CABLE Input** is its Windows playback/output endpoint. **CABLE Output** is its Windows recording/input endpoint. Audio sent to CABLE Input is forwarded to CABLE Output.
