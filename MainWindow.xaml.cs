@@ -216,42 +216,54 @@ public partial class MainWindow : Window
 
     private void SoundsList_DoubleClick(object sender, MouseButtonEventArgs e)
     {
-        if (SoundsList.SelectedItem is SoundItem item) PlayEffect(item);
+        if (e.OriginalSource is not DependencyObject source) return;
+        if (System.Windows.Controls.ItemsControl.ContainerFromElement(SoundsList, source) is not System.Windows.Controls.ListViewItem row) return;
+        if (row.DataContext is SoundItem item) PlayPlaylistItem(item);
     }
 
     private void SoundsList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
         CancelShortcutCapture();
         UpdateShortcutEditor();
-        if (SoundsList.SelectedItem is SoundItem item) _engine?.SelectPlaylistTrack(item.FilePath);
     }
 
     private void PlaySelected_Click(object sender, RoutedEventArgs e)
     {
-        if (SoundsList.SelectedItem is SoundItem item)
+        if (SoundsList.SelectedItem is SoundItem item) PlayPlaylistItem(item);
+        else StatusText.Text = "Select a song to play.";
+    }
+
+    private void PlayPlaylistItem(SoundItem item)
+    {
+        if (_engine == null)
         {
-            try
-            {
-                _engine?.PlayPlaylist(item.FilePath, LoopSongBox.IsChecked == true, LoopPlaylistBox.IsChecked == true);
-                StatusText.Text = $"Playing: {item.Name}";
-            }
-            catch (Exception ex)
-            {
-                StatusText.Text = "Playlist playback error: " + ex.Message;
-            }
+            StatusText.Text = "Start the audio engine before playing a song.";
+            return;
+        }
+
+        try
+        {
+            _engine.PlayPlaylist(item.FilePath, LoopSongBox.IsChecked == true, LoopPlaylistBox.IsChecked == true);
+            StatusText.Text = $"Playing: {item.Name}";
+        }
+        catch (Exception ex)
+        {
+            StatusText.Text = $"Could not play {item.Name}: {ex.Message}";
         }
     }
 
     private void Pause_Click(object sender, RoutedEventArgs e)
     {
-        _engine?.PausePlaylist();
-        StatusText.Text = "Playlist paused.";
+        StatusText.Text = _engine?.PausePlaylist() == true
+            ? "Playlist paused."
+            : "Nothing is currently playing.";
     }
 
     private void Stop_Click(object sender, RoutedEventArgs e)
     {
-        _engine?.StopPlaylist();
-        StatusText.Text = "Playlist stopped.";
+        StatusText.Text = _engine?.StopPlaylist() == true
+            ? "Playlist stopped."
+            : "Nothing is currently playing.";
     }
 
     private void Previous_Click(object sender, RoutedEventArgs e) => MovePlaylist(-1);
@@ -931,8 +943,6 @@ internal sealed class AudioEngine : IDisposable
         mixer.AddMixerInput(auto);
     }
 
-    public void SelectPlaylistTrack(string path) { _playlistPlayer?.Select(path); }
-
     public void PlayPlaylist(string path, bool loopSong, bool loopPlaylist)
     {
         if (_playlistPlayer == null)
@@ -945,8 +955,8 @@ internal sealed class AudioEngine : IDisposable
         mixer.AddMixerInput(provider);
     }
 
-    public void PausePlaylist() => _playlistPlayer?.Pause();
-    public void StopPlaylist() => _playlistPlayer?.Stop();
+    public bool PausePlaylist() => _playlistPlayer?.Pause() == true;
+    public bool StopPlaylist() => _playlistPlayer?.Stop() == true;
     public void SetLoopMode(bool loopSong, bool loopPlaylist) => _playlistPlayer?.SetLoopMode(loopSong, loopPlaylist);
 
     public void StopAll()
@@ -1027,8 +1037,6 @@ internal sealed class AudioEngine : IDisposable
             _files = files;
         }
 
-        public void Select(string path) => _current = path;
-
         public void Play(string path, bool loopSong, bool loopPlaylist)
         {
             if (_paused && string.Equals(_current, path, StringComparison.OrdinalIgnoreCase))
@@ -1040,7 +1048,6 @@ internal sealed class AudioEngine : IDisposable
                 return;
             }
 
-            StopCurrent();
             _current = path;
             _loopSong = loopSong;
             _loopPlaylist = loopPlaylist;
@@ -1049,19 +1056,22 @@ internal sealed class AudioEngine : IDisposable
             StartCurrent();
         }
 
-        public void Pause()
+        public bool Pause()
         {
-            if (_paused || _cableReader == null) return;
+            if (_paused || _cableReader == null) return false;
             _position = _cableReader.CurrentTime;
             _paused = true;
-            StopCurrent(disposeOnly: true);
+            StopPlaybackResources();
+            return true;
         }
 
-        public void Stop()
+        public bool Stop()
         {
+            var wasActive = _paused || _cableReader != null;
+            StopPlaybackResources();
             _paused = false;
             _position = TimeSpan.Zero;
-            StopCurrent();
+            return wasActive;
         }
 
         public void SetLoopMode(bool loopSong, bool loopPlaylist)
@@ -1074,7 +1084,7 @@ internal sealed class AudioEngine : IDisposable
         {
             if (_current == null || !File.Exists(_current)) return;
 
-            StopCurrent();
+            StopPlaybackResources();
             _cableReader = new MediaFoundationReader(_current);
             _cableReader.CurrentTime = _position;
             _cableProvider = PrepareReader(_cableReader);
@@ -1109,7 +1119,7 @@ internal sealed class AudioEngine : IDisposable
                     StartCurrent();
                     return;
                 }
-                StopCurrent();
+                Stop();
             };
             _timer.Start();
         }
@@ -1126,7 +1136,7 @@ internal sealed class AudioEngine : IDisposable
             return sample;
         }
 
-        private void StopCurrent(bool disposeOnly = false)
+        private void StopPlaybackResources()
         {
             _timer?.Stop();
             _timer?.Dispose();
@@ -1142,10 +1152,14 @@ internal sealed class AudioEngine : IDisposable
             _cableReader = null;
             _monitorReader = null;
 
-            if (!disposeOnly) _position = TimeSpan.Zero;
         }
 
-        public void Dispose() => StopCurrent();
+        public void Dispose()
+        {
+            StopPlaybackResources();
+            _paused = false;
+            _position = TimeSpan.Zero;
+        }
     }
 
 }

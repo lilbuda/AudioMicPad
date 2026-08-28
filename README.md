@@ -65,7 +65,7 @@ Install [Inno Setup](https://jrsoftware.org/isdl.php), then run:
 powershell -ExecutionPolicy Bypass -File .\build-installer.ps1
 ```
 
-The installer is created at `installer\AudioMicPad-Setup-v1.1.2.exe`. It requests administrator permission because Program Files is protected. If VB-CABLE is not detected, the installer offers to open its official download page; the VB-CABLE driver is not bundled.
+The installer is created at `installer\AudioMicPad-Setup-v1.1.3.exe`. It requests administrator permission because Program Files is protected. If VB-CABLE is not detected, the installer offers to open its official download page; the VB-CABLE driver is not bundled.
 
 ## Privacy
 

@@ -74,7 +74,7 @@
           <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,20,0,18"/>
           <TextBlock Text="3. Add and play sounds" Style="{StaticResource SectionTitleStyle}"/>
           <TextBlock TextWrapping="Wrap" LineHeight="22"
-                     Text="Choose a music folder to load supported audio files. Select a file and press Play, or double-click it to play it as a sound effect. Pause, Stop, Previous, Next, Loop song, and Loop playlist control playback."/>
+                     Text="Choose a music folder to load supported audio files. Select a file and press Play, or double-click it to start playback. Double-clicking another file switches tracks. Pause, Stop, Previous, Next, Loop song, and Loop playlist control playback."/>
 
           <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,20,0,18"/>
           <TextBlock Text="Volume controls" Style="{StaticResource SectionTitleStyle}"/>

@@ -9,9 +9,9 @@
     <AssemblyName>AudioMicPad</AssemblyName>
     <RootNamespace>AudioMicPad</RootNamespace>
     <ApplicationIcon>audiomicpad.ico</ApplicationIcon>
-    <Version>1.1.2</Version>
-    <AssemblyVersion>1.1.2.0</AssemblyVersion>
-    <FileVersion>1.1.2.0</FileVersion>
+    <Version>1.1.3</Version>
+    <AssemblyVersion>1.1.3.0</AssemblyVersion>
+    <FileVersion>1.1.3.0</FileVersion>
     <Authors>lilbuda</Authors>
     <Company>lilbuda</Company>
     <Description>Mix a physical microphone with music and sound effects for voice chat through VB-CABLE.</Description>

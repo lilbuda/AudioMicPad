@@ -89,7 +89,7 @@
               <TextBlock Text="Sounds and playlist" Style="{StaticResource SectionTitleStyle}" Margin="0"/>
               <TextBlock x:Name="SoundCountText" Text="No sounds loaded" Style="{StaticResource SecondaryTextStyle}" Margin="0,4,0,0"/>
             </StackPanel>
-            <TextBlock Grid.Column="1" Text="Double-click to play as an effect" Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="1" Text="Double-click to play or switch tracks" Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center"/>
           </Grid>
 
           <ListView x:Name="SoundsList"
