@@ -29,7 +29,7 @@ The packaged application is self-contained, so users do not need to install .NET
 
 ## Download
 
-Download the latest Windows installer from the [AudioMicPad v1.1.1 release](https://github.com/lilbuda/AudioMicPad/releases/download/v1.1.1/AudioMicPad-Setup-v1.1.1.exe).
+Download the latest Windows installer from the [AudioMicPad v1.1.3 release](https://github.com/lilbuda/AudioMicPad/releases/download/v1.1.3/AudioMicPad-Setup-v1.1.3.exe).
 
 Because the installer is not currently code-signed, Windows may identify its publisher as unknown or show a Microsoft Defender SmartScreen warning. Only download AudioMicPad from this repository's official Releases page.
 
