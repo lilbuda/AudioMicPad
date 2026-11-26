@@ -1,5 +1,5 @@
 #define MyAppName "AudioMicPad"
-#define MyAppVersion "1.1.3"
+#define MyAppVersion "1.2.0"
 #define MyAppPublisher "lilbuda"
 #define MyAppExeName "AudioMicPad.exe"
 #define VBCableUrl "https://vb-audio.com/Cable/"
@@ -20,7 +20,7 @@ DisableProgramGroupPage=yes
 PrivilegesRequired=admin
 ArchitecturesAllowed=x64compatible
 OutputDir=..\installer
-OutputBaseFilename=AudioMicPad-Setup-v1.1.3
+OutputBaseFilename=AudioMicPad-Setup-v{#MyAppVersion}
 SetupIconFile=..\audiomicpad.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 Compression=lzma2

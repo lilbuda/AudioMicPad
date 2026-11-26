@@ -29,7 +29,7 @@ The packaged application is self-contained, so users do not need to install .NET
 
 ## Download
 
-Download the latest Windows installer from the [AudioMicPad v1.1.3 release](https://github.com/lilbuda/AudioMicPad/releases/download/v1.1.3/AudioMicPad-Setup-v1.1.3.exe).
+Download the latest Windows installer from the [AudioMicPad v1.2.0 release](https://github.com/lilbuda/AudioMicPad/releases/download/v1.2.0/AudioMicPad-Setup-v1.2.0.exe).
 
 Because the installer is not currently code-signed, Windows may identify its publisher as unknown or show a Microsoft Defender SmartScreen warning. Only download AudioMicPad from this repository's official Releases page.
 
@@ -65,7 +65,7 @@ Install [Inno Setup](https://jrsoftware.org/isdl.php), then run:
 powershell -ExecutionPolicy Bypass -File .\build-installer.ps1
 ```
 
-The installer is created at `installer\AudioMicPad-Setup-v1.1.3.exe`. It requests administrator permission because Program Files is protected. If VB-CABLE is not detected, the installer offers to open its official download page; the VB-CABLE driver is not bundled.
+The installer is created at `installer\AudioMicPad-Setup-v1.2.0.exe`. It requests administrator permission because Program Files is protected. If VB-CABLE is not detected, the installer offers to open its official download page; the VB-CABLE driver is not bundled.
 
 ## Privacy
 
