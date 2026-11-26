@@ -2,6 +2,8 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Controls.Primitives;
+using System.Windows.Threading;
 using System.Windows.Input;
 using System.Windows.Forms;
 using System.Windows.Interop;
@@ -18,6 +20,10 @@ public partial class MainWindow : Window
     private readonly ObservableCollection<PlaybackShortcutItem> _playbackShortcuts = new();
     private readonly MMDeviceEnumerator _enumerator = new();
     private AudioEngine? _engine;
+    private readonly DispatcherTimer _progressTimer = new() { Interval = TimeSpan.FromMilliseconds(200) };
+    private bool _updatingProgress;
+    private bool _draggingProgress;
+    private string? _draggedTrack;
     private readonly string[] _extensions = [".wav", ".mp3", ".m4a", ".aac", ".wma", ".flac", ".ogg"];
     private readonly string _settingsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AudioMicPad", "settings.json");
     private AppSettings _settings = new();
@@ -60,7 +66,9 @@ public partial class MainWindow : Window
         {
             RegisterGlobalHotkeys();
             if (AutoStart.IsChecked == true) RestartEngine();
+            _progressTimer.Start();
         };
+        _progressTimer.Tick += (_, _) => UpdateSongProgress();
         SourceInitialized += (_, _) =>
         {
             ThemeManager.Apply(_settings.Theme, this);
@@ -69,6 +77,7 @@ public partial class MainWindow : Window
         Microsoft.Win32.SystemEvents.UserPreferenceChanged += SystemThemeChanged;
         Closing += (_, _) =>
         {
+            _progressTimer.Stop();
             SaveSettings();
             UnregisterGlobalHotkeys();
             DisposeEngine();
@@ -289,6 +298,68 @@ public partial class MainWindow : Window
         if (sender == LoopSongBox && LoopSongBox.IsChecked == true) LoopPlaylistBox.IsChecked = false;
         if (sender == LoopPlaylistBox && LoopPlaylistBox.IsChecked == true) LoopSongBox.IsChecked = false;
         _engine?.SetLoopMode(LoopSongBox.IsChecked == true, LoopPlaylistBox.IsChecked == true);
+    }
+
+    private void UpdateSongProgress()
+    {
+        if (_draggingProgress) return;
+        var progress = _engine?.GetPlaylistProgress();
+        var duration = progress?.Duration ?? TimeSpan.Zero;
+        var position = progress?.Position ?? TimeSpan.Zero;
+
+        _updatingProgress = true;
+        try
+        {
+            SongProgress.IsEnabled = duration > TimeSpan.Zero;
+            SongProgress.Maximum = duration > TimeSpan.Zero ? duration.TotalSeconds : 1;
+            SongProgress.Value = position.TotalSeconds;
+            ElapsedTimeText.Text = FormatPlaybackTime(position);
+            DurationTimeText.Text = FormatPlaybackTime(duration);
+        }
+        finally
+        {
+            _updatingProgress = false;
+        }
+    }
+
+    private static string FormatPlaybackTime(TimeSpan time) =>
+        time.TotalHours >= 1 ? time.ToString(@"h\:mm\:ss") : time.ToString(@"m\:ss");
+
+    private void SongProgress_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (_updatingProgress) return;
+        var position = TimeSpan.FromSeconds(e.NewValue);
+        if (_draggingProgress)
+            ElapsedTimeText.Text = FormatPlaybackTime(position);
+        else if (_engine?.GetPlaylistProgress() is { } progress)
+            SeekSong(progress.Path, position);
+    }
+
+    private void SongProgress_DragStarted(object sender, DragStartedEventArgs e)
+    {
+        _draggingProgress = true;
+        _draggedTrack = _engine?.GetPlaylistProgress()?.Path;
+    }
+
+    private void SongProgress_DragCompleted(object sender, DragCompletedEventArgs e)
+    {
+        _draggingProgress = false;
+        if (!e.Canceled && _draggedTrack is { } path)
+            SeekSong(path, TimeSpan.FromSeconds(SongProgress.Value));
+        _draggedTrack = null;
+        UpdateSongProgress();
+    }
+
+    private void SeekSong(string path, TimeSpan position)
+    {
+        try
+        {
+            _engine?.SeekPlaylist(path, position);
+        }
+        catch (Exception ex)
+        {
+            StatusText.Text = "Could not seek: " + ex.Message;
+        }
     }
 
     private void PlayEffect(SoundItem item)
@@ -967,6 +1038,8 @@ internal sealed class AudioEngine : IDisposable
 
     public bool PausePlaylist() => _playlistPlayer?.Pause() == true;
     public bool StopPlaylist() => _playlistPlayer?.Stop() == true;
+    public PlaylistProgress? GetPlaylistProgress() => _playlistPlayer?.GetProgress();
+    public void SeekPlaylist(string path, TimeSpan position) => _playlistPlayer?.Seek(path, position);
     public void SetLoopMode(bool loopSong, bool loopPlaylist) => _playlistPlayer?.SetLoopMode(loopSong, loopPlaylist);
 
     public void StopAll()
@@ -1045,6 +1118,8 @@ internal sealed class AudioEngine : IDisposable
         public int Read(float[] buffer, int offset, int count) => _inner.Read(buffer, offset, count);
     }
 
+    public readonly record struct PlaylistProgress(string Path, TimeSpan Position, TimeSpan Duration);
+
     private sealed class PlaylistPlayer : IDisposable
     {
         private readonly AudioEngine _engine;
@@ -1054,7 +1129,9 @@ internal sealed class AudioEngine : IDisposable
         private bool _loopPlaylist;
         private bool _paused;
         private TimeSpan _position = TimeSpan.Zero;
-        private System.Timers.Timer? _timer;
+        private TimeSpan _duration;
+        // Serialize track completion with seek, pause, and other UI commands.
+        private readonly DispatcherTimer _endTimer = new();
         private MediaFoundationReader? _cableReader;
         private MediaFoundationReader? _monitorReader;
         private ISampleProvider? _cableProvider;
@@ -1064,6 +1141,7 @@ internal sealed class AudioEngine : IDisposable
         {
             _engine = engine;
             _files = files;
+            _endTimer.Tick += TrackEnded;
         }
 
         public void Play(string path, bool loopSong, bool loopPlaylist)
@@ -1073,7 +1151,10 @@ internal sealed class AudioEngine : IDisposable
                 _loopSong = loopSong;
                 _loopPlaylist = loopPlaylist;
                 _paused = false;
-                StartCurrent();
+                if (_duration > TimeSpan.Zero && _position >= _duration)
+                    FinishCurrent();
+                else
+                    StartCurrent();
                 return;
             }
 
@@ -1083,6 +1164,28 @@ internal sealed class AudioEngine : IDisposable
             _position = TimeSpan.Zero;
             _paused = false;
             StartCurrent();
+        }
+
+        public PlaylistProgress? GetProgress()
+        {
+            if (_current == null || (!_paused && _cableReader == null)) return null;
+            var position = _cableReader?.CurrentTime ?? _position;
+            if (position > _duration) position = _duration;
+            return new PlaylistProgress(_current, position, _duration);
+        }
+
+        public void Seek(string path, TimeSpan position)
+        {
+            if (GetProgress() is not { } progress || progress.Duration <= TimeSpan.Zero ||
+                !string.Equals(progress.Path, path, StringComparison.OrdinalIgnoreCase)) return;
+
+            _position = TimeSpan.FromTicks(Math.Clamp(position.Ticks, 0, _duration.Ticks));
+            if (_paused) return;
+
+            if (_position == _duration)
+                FinishCurrent();
+            else
+                StartCurrent();
         }
 
         public bool Pause()
@@ -1100,6 +1203,7 @@ internal sealed class AudioEngine : IDisposable
             StopPlaybackResources();
             _paused = false;
             _position = TimeSpan.Zero;
+            _duration = TimeSpan.Zero;
             return wasActive;
         }
 
@@ -1111,46 +1215,65 @@ internal sealed class AudioEngine : IDisposable
 
         private void StartCurrent()
         {
-            if (_current == null || !File.Exists(_current)) return;
-
             StopPlaybackResources();
-            _cableReader = new MediaFoundationReader(_current);
-            _cableReader.CurrentTime = _position;
-            _cableProvider = PrepareReader(_cableReader);
-            _engine.AddPlaylistProvider(_cableProvider, _engine._cableSoundMixer);
-
-            if (_engine._monitorOut != null)
+            try
             {
-                _monitorReader = new MediaFoundationReader(_current);
-                _monitorReader.CurrentTime = _position;
-                _monitorProvider = PrepareReader(_monitorReader);
-                _engine.AddPlaylistProvider(_monitorProvider, _engine._monitorSoundMixer);
+                if (_current == null || !File.Exists(_current))
+                    throw new FileNotFoundException("Song file not found.", _current);
+
+                _cableReader = new MediaFoundationReader(_current);
+                _duration = _cableReader.TotalTime;
+                _cableReader.CurrentTime = _position;
+                _cableProvider = PrepareReader(_cableReader);
+                if (_engine._monitorOut != null)
+                {
+                    _monitorReader = new MediaFoundationReader(_current);
+                    _monitorReader.CurrentTime = _position;
+                    _monitorProvider = PrepareReader(_monitorReader);
+                }
+
+                _engine.AddPlaylistProvider(_cableProvider, _engine._cableSoundMixer);
+                if (_monitorProvider != null)
+                    _engine.AddPlaylistProvider(_monitorProvider, _engine._monitorSoundMixer);
+
+                _endTimer.Interval = TimeSpan.FromMilliseconds(Math.Max(50, (_duration - _position).TotalMilliseconds));
+                _endTimer.Start();
+            }
+            catch
+            {
+                Stop();
+                throw;
+            }
+        }
+
+        private void TrackEnded(object? sender, EventArgs e)
+        {
+            try
+            {
+                FinishCurrent();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("Could not continue playlist: {0}", ex.Message);
+            }
+        }
+
+        private void FinishCurrent()
+        {
+            if (!_loopSong)
+            {
+                if (!_loopPlaylist || _files.Count == 0)
+                {
+                    Stop();
+                    return;
+                }
+
+                var index = _files.FindIndex(f => string.Equals(f, _current, StringComparison.OrdinalIgnoreCase));
+                _current = _files[(index + 1) % _files.Count];
             }
 
-            var remaining = Math.Max(50, (_cableReader.TotalTime - _position).TotalMilliseconds);
-            _timer = new System.Timers.Timer(remaining);
-            _timer.AutoReset = false;
-            _timer.Elapsed += (_, _) =>
-            {
-                if (_paused) return;
-                if (_loopSong)
-                {
-                    _position = TimeSpan.Zero;
-                    StartCurrent();
-                    return;
-                }
-                if (_loopPlaylist && _files.Count > 0)
-                {
-                    var idx = _files.FindIndex(f => string.Equals(f, _current, StringComparison.OrdinalIgnoreCase));
-                    var next = idx < 0 ? 0 : (idx + 1) % _files.Count;
-                    _current = _files[next];
-                    _position = TimeSpan.Zero;
-                    StartCurrent();
-                    return;
-                }
-                Stop();
-            };
-            _timer.Start();
+            _position = TimeSpan.Zero;
+            StartCurrent();
         }
 
         private static ISampleProvider PrepareReader(MediaFoundationReader reader)
@@ -1167,9 +1290,7 @@ internal sealed class AudioEngine : IDisposable
 
         private void StopPlaybackResources()
         {
-            _timer?.Stop();
-            _timer?.Dispose();
-            _timer = null;
+            _endTimer.Stop();
 
             if (_cableProvider != null) _engine._cableSoundMixer.RemoveMixerInput(_cableProvider);
             if (_monitorProvider != null) _engine._monitorSoundMixer.RemoveMixerInput(_monitorProvider);
@@ -1180,15 +1301,9 @@ internal sealed class AudioEngine : IDisposable
             _monitorReader?.Dispose();
             _cableReader = null;
             _monitorReader = null;
-
         }
 
-        public void Dispose()
-        {
-            StopPlaybackResources();
-            _paused = false;
-            _position = TimeSpan.Zero;
-        }
+        public void Dispose() => Stop();
     }
 
 }

@@ -78,6 +78,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
 
           <Grid Margin="0,0,0,12">
@@ -141,7 +142,25 @@
             </Grid>
           </Border>
 
-          <WrapPanel Grid.Row="3" Margin="0,12,0,0">
+          <Grid Grid.Row="3" Margin="0,12,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="ElapsedTimeText" Text="0:00" Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center"/>
+            <Slider x:Name="SongProgress" Grid.Column="1" Margin="10,0"
+                    VerticalAlignment="Center" IsEnabled="False" Maximum="1"
+                    SmallChange="5" LargeChange="30" IsMoveToPointEnabled="True"
+                    AutomationProperties.Name="Song position in seconds"
+                    AutomationProperties.HelpText="Click, drag, or use the arrow keys to seek."
+                    ValueChanged="SongProgress_ValueChanged"
+                    Thumb.DragStarted="SongProgress_DragStarted"
+                    Thumb.DragCompleted="SongProgress_DragCompleted"/>
+            <TextBlock x:Name="DurationTimeText" Grid.Column="2" Text="0:00" Style="{StaticResource SecondaryTextStyle}" VerticalAlignment="Center"/>
+          </Grid>
+
+          <WrapPanel Grid.Row="4" Margin="0,12,0,0">
             <Button Style="{StaticResource PrimaryButtonStyle}" AutomationProperties.Name="Play" MinWidth="82" Margin="0,0,6,6" Click="PlaySelected_Click">
               <StackPanel Orientation="Horizontal">
                 <Path Width="14" Height="14" Stretch="Uniform" Data="{StaticResource PlayIconGeometry}" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Margin="0,0,8,0"/>
@@ -234,16 +253,6 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
               </Grid.ColumnDefinitions>
-              <TextBlock Text="Music / sounds to virtual mic"/>
-              <TextBlock Grid.Column="1" Text="{Binding ElementName=MusicToMicVolume, Path=Value, StringFormat={}{0:P0}}" Style="{StaticResource SecondaryTextStyle}"/>
-            </Grid>
-            <Slider x:Name="MusicToMicVolume" AutomationProperties.Name="Music and sounds volume to virtual mic" Minimum="0" Maximum="1.5" Value="1" ValueChanged="MusicToMicVolume_ValueChanged"/>
-
-            <Grid Margin="0,13,0,0">
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-              </Grid.ColumnDefinitions>
               <TextBlock Text="Microphone pitch"/>
               <TextBlock Grid.Column="1"
                          Text="{Binding ElementName=MicPitch, Path=Value, StringFormat={}{0:+0;-0;0} st}"
@@ -265,6 +274,16 @@
                        FontSize="11"
                        TextWrapping="Wrap"
                        Margin="0,3,0,0"/>
+
+            <Grid Margin="0,13,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <TextBlock Text="Music / sounds to virtual mic"/>
+              <TextBlock Grid.Column="1" Text="{Binding ElementName=MusicToMicVolume, Path=Value, StringFormat={}{0:P0}}" Style="{StaticResource SecondaryTextStyle}"/>
+            </Grid>
+            <Slider x:Name="MusicToMicVolume" AutomationProperties.Name="Music and sounds volume to virtual mic" Minimum="0" Maximum="1.5" Value="1" ValueChanged="MusicToMicVolume_ValueChanged"/>
 
             <Grid Margin="0,13,0,0">
               <Grid.ColumnDefinitions>
