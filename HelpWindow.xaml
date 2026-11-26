@@ -77,9 +77,11 @@
                      Text="Choose a music folder to load supported audio files. Select a file and press Play, or double-click it to start playback. Double-clicking another file switches tracks. Pause, Stop, Previous, Next, Loop song, and Loop playlist control playback."/>
 
           <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,20,0,18"/>
-          <TextBlock Text="Volume controls" Style="{StaticResource SectionTitleStyle}"/>
+          <TextBlock Text="Volume and voice pitch" Style="{StaticResource SectionTitleStyle}"/>
           <TextBlock TextWrapping="Wrap" LineHeight="22"
                      Text="Voice volume changes only your microphone level sent to CABLE Input. It can boost a quiet microphone up to 500%; very high gain may also amplify background noise or cause distortion. Music / sounds to mic controls what other people hear. Music / sounds to headset independently controls what you hear. Changing the headset volume does not change the level sent to voice chat."/>
+          <TextBlock TextWrapping="Wrap" LineHeight="22" Margin="0,8,0,0"
+                     Text="Microphone pitch raises or lowers your voice by up to one octave while audio is running. Set it to 0 semitones for your natural pitch. The effect applies only to your microphone."/>
 
           <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,20,0,18"/>
           <TextBlock Text="Keyboard shortcuts" Style="{StaticResource SectionTitleStyle}"/>

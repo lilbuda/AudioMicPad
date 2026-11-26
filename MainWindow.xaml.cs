@@ -114,6 +114,7 @@ public partial class MainWindow : Window
             _settings.MonitorId = (MonitorBox.SelectedItem as DeviceChoice)?.Id ?? _settings.MonitorId;
             _settings.MonitorEnabled = MonitorBoxEnabled.IsChecked == true;
             _settings.MicVolume = MicVolume.Value;
+            _settings.MicPitchSemitones = (int)MicPitch.Value;
             _settings.MusicToMicVolume = MusicToMicVolume.Value;
             _settings.MusicToHeadsetVolume = MusicToHeadsetVolume.Value;
             _settings.SoundVolume = MusicToMicVolume.Value;
@@ -160,6 +161,7 @@ public partial class MainWindow : Window
 
         MonitorBoxEnabled.IsChecked = _settings.MonitorEnabled;
         MicVolume.Value = Math.Clamp(_settings.MicVolume, MicVolume.Minimum, MicVolume.Maximum);
+        MicPitch.Value = _settings.MicPitchSemitones;
         MusicToMicVolume.Value = _settings.MusicToMicVolume ?? _settings.SoundVolume;
         MusicToHeadsetVolume.Value = _settings.MusicToHeadsetVolume ?? _settings.SoundVolume;
     }
@@ -633,6 +635,7 @@ public partial class MainWindow : Window
                 output.Id,
                 monitor?.Id,
                 MicVolume.Value,
+                MicPitch.Value,
                 MusicToMicVolume.Value,
                 MusicToHeadsetVolume.Value,
                 _sounds.Select(s => s.FilePath).ToList());
@@ -666,6 +669,7 @@ public partial class MainWindow : Window
     private void MonitorBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e) { }
     private void MonitorEnabled_Click(object sender, RoutedEventArgs e) { if (IsLoaded) RestartEngine(); }
     private void MicVolume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) => _engine?.SetMicVolume(e.NewValue);
+    private void MicPitch_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) => _engine?.SetMicPitch(e.NewValue);
     private void MusicToMicVolume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) => _engine?.SetMusicToMicVolume(e.NewValue);
     private void MusicToHeadsetVolume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e) => _engine?.SetMusicToHeadsetVolume(e.NewValue);
 }
@@ -678,6 +682,7 @@ public sealed class AppSettings
     public string? MonitorId { get; set; }
     public bool MonitorEnabled { get; set; } = true;
     public double MicVolume { get; set; } = 1;
+    public int MicPitchSemitones { get; set; }
     public double? MusicToMicVolume { get; set; }
     public double? MusicToHeadsetVolume { get; set; }
     public double SoundVolume { get; set; } = 1;
@@ -827,6 +832,7 @@ internal sealed class AudioEngine : IDisposable
     private readonly WasapiOut _cableOut;
     private readonly WasapiOut? _monitorOut;
     private readonly VolumeSampleProvider _micVolume;
+    private readonly MicrophonePitchSampleProvider _micPitch;
     private readonly VolumeSampleProvider _musicToMicVolume;
     private readonly VolumeSampleProvider _musicToHeadsetVolume;
     private readonly List<IDisposable> _activeReaders = new();
@@ -839,6 +845,7 @@ internal sealed class AudioEngine : IDisposable
         string cableOutputId,
         string? monitorId,
         double micVolume,
+        double micPitchSemitones,
         double musicToMicVolume,
         double musicToHeadsetVolume,
         List<string> playlist)
@@ -864,7 +871,9 @@ internal sealed class AudioEngine : IDisposable
         _monitorSoundMixer = NewMixer();
 
         var micMono = _micBuffer.ToSampleProvider();
-        var micStereo = new MonoToStereoSampleProvider(micMono);
+        _micPitch = new MicrophonePitchSampleProvider(micMono);
+        SetMicPitch(micPitchSemitones);
+        var micStereo = new MonoToStereoSampleProvider(_micPitch);
         _micVolume = new VolumeSampleProvider(micStereo) { Volume = (float)micVolume };
         _musicToMicVolume = new VolumeSampleProvider(_cableSoundMixer) { Volume = (float)musicToMicVolume };
         _musicToHeadsetVolume = new VolumeSampleProvider(_monitorSoundMixer) { Volume = (float)musicToHeadsetVolume };
@@ -901,6 +910,7 @@ internal sealed class AudioEngine : IDisposable
     }
 
     public void SetMicVolume(double value) => _micVolume.Volume = (float)value;
+    public void SetMicPitch(double semitones) => _micPitch.SetSemitones(semitones);
     public void SetMusicToMicVolume(double value) => _musicToMicVolume.Volume = (float)value;
     public void SetMusicToHeadsetVolume(double value) => _musicToHeadsetVolume.Volume = (float)value;
 
@@ -990,6 +1000,25 @@ internal sealed class AudioEngine : IDisposable
         _mic.Dispose();
         _cableOutput.Dispose();
         _monitor?.Dispose();
+    }
+
+    private sealed class MicrophonePitchSampleProvider(ISampleProvider source) : ISampleProvider
+    {
+        // A short FFT window keeps the added microphone delay low.
+        private readonly SmbPitchShiftingSampleProvider _shifter = new(source, 1024, 4, 1f);
+        private float _requestedPitchFactor = 1f;
+
+        public WaveFormat WaveFormat => _shifter.WaveFormat;
+
+        public void SetSemitones(double semitones) =>
+            System.Threading.Volatile.Write(ref _requestedPitchFactor, (float)Math.Pow(2, semitones / 12));
+
+        public int Read(float[] buffer, int offset, int count)
+        {
+            // Apply slider changes on the audio thread at the start of each buffer.
+            _shifter.PitchFactor = System.Threading.Volatile.Read(ref _requestedPitchFactor);
+            return _shifter.Read(buffer, offset, count);
+        }
     }
 
     private sealed class OwnedSampleProvider : ISampleProvider

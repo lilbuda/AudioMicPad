@@ -205,7 +205,7 @@
                       Click="MonitorEnabled_Click"/>
 
             <Border Height="1" Background="{DynamicResource BorderBrush}" Margin="0,18,0,16"/>
-            <TextBlock Text="Volume" Style="{StaticResource SectionTitleStyle}"/>
+            <TextBlock Text="Volume and voice pitch" Style="{StaticResource SectionTitleStyle}"/>
 
             <Grid>
               <Grid.ColumnDefinitions>
@@ -238,6 +238,33 @@
               <TextBlock Grid.Column="1" Text="{Binding ElementName=MusicToMicVolume, Path=Value, StringFormat={}{0:P0}}" Style="{StaticResource SecondaryTextStyle}"/>
             </Grid>
             <Slider x:Name="MusicToMicVolume" AutomationProperties.Name="Music and sounds volume to virtual mic" Minimum="0" Maximum="1.5" Value="1" ValueChanged="MusicToMicVolume_ValueChanged"/>
+
+            <Grid Margin="0,13,0,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <TextBlock Text="Microphone pitch"/>
+              <TextBlock Grid.Column="1"
+                         Text="{Binding ElementName=MicPitch, Path=Value, StringFormat={}{0:+0;-0;0} st}"
+                         Style="{StaticResource SecondaryTextStyle}"/>
+            </Grid>
+            <Slider x:Name="MicPitch"
+                    AutomationProperties.Name="Microphone pitch in semitones"
+                    AutomationProperties.HelpText="Set pitch from one octave lower to one octave higher. Zero restores your natural pitch."
+                    Minimum="-12"
+                    Maximum="12"
+                    TickFrequency="1"
+                    IsSnapToTickEnabled="True"
+                    SmallChange="1"
+                    LargeChange="3"
+                    IsMoveToPointEnabled="True"
+                    ValueChanged="MicPitch_ValueChanged"/>
+            <TextBlock Text="Raise or lower your microphone pitch in real time. Set it to 0 for your natural voice."
+                       Style="{StaticResource SecondaryTextStyle}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Margin="0,3,0,0"/>
 
             <Grid Margin="0,13,0,0">
               <Grid.ColumnDefinitions>
