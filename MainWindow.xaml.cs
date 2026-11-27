@@ -929,9 +929,10 @@ internal sealed class AudioEngine : IDisposable
 
         _capture = new WasapiCapture(_mic, true, AudioLatencyMilliseconds) { ShareMode = AudioClientShareMode.Shared };
         _capture.WaveFormat = new WaveFormat(SampleRate, 16, 1);
-        _micBuffer = new BufferedWaveProvider(_capture.WaveFormat)
+        _micBuffer = new BufferedWaveProvider(
+            _capture.WaveFormat,
+            TimeSpan.FromMilliseconds(MicrophoneBufferMilliseconds))
         {
-            BufferDuration = TimeSpan.FromMilliseconds(MicrophoneBufferMilliseconds),
             DiscardOnBufferOverflow = true,
             ReadFully = true
         };
