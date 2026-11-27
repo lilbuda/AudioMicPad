@@ -13,12 +13,14 @@ It also lets you monitor music and sound effects through your normal headset wit
 - Mixes a physical microphone with music or sound effects and sends the result to **CABLE Input**.
 - Sends music and sound effects—but not microphone audio—to a selected headset or speaker.
 - Independent voice, virtual-microphone music, and headset-monitor music volume controls, with up to 500% voice gain for quiet microphones.
+- Live microphone pitch control from −12 to +12 semitones. Music and sound effects keep their original pitch.
 - Supports WAV, MP3, M4A, AAC, WMA, FLAC, and OGG files.
 - Play, pause, stop, previous, next, loop-song, and loop-playlist controls.
+- A playback timeline with elapsed time and duration. Click or drag to seek during playback or while paused.
 - Assignable global shortcuts for sounds and playback controls.
 - System, dark, and light themes.
 - Built-in usage and routing guide.
-- Automatically saves the folder, selected devices, volumes, theme, shortcuts, and engine options.
+- Automatically saves the folder, selected devices, volumes, microphone pitch, theme, shortcuts, and engine options.
 
 ## Requirements
 
@@ -29,7 +31,7 @@ The packaged application is self-contained, so users do not need to install .NET
 
 ## Download
 
-Download the latest Windows installer from the [AudioMicPad v1.2.0 release](https://github.com/lilbuda/AudioMicPad/releases/download/v1.2.0/AudioMicPad-Setup-v1.2.0.exe).
+Download the Windows installer from the [latest GitHub release](https://github.com/lilbuda/AudioMicPad/releases/latest) or the [official download page](https://audiomicpad.vercel.app/download). See the [changelog](CHANGELOG.md) for release history.
 
 Because the installer is not currently code-signed, Windows may identify its publisher as unknown or show a Microsoft Defender SmartScreen warning. Only download AudioMicPad from this repository's official Releases page.
 
@@ -65,7 +67,7 @@ Install [Inno Setup](https://jrsoftware.org/isdl.php), then run:
 powershell -ExecutionPolicy Bypass -File .\build-installer.ps1
 ```
 
-The installer is created at `installer\AudioMicPad-Setup-v1.2.0.exe`. It requests administrator permission because Program Files is protected. If VB-CABLE is not detected, the installer offers to open its official download page; the VB-CABLE driver is not bundled.
+The versioned installer is created in the `installer` directory. It requests administrator permission because Program Files is protected. If VB-CABLE is not detected, the installer offers to open its official download page; the VB-CABLE driver is not bundled.
 
 ## Privacy
 
@@ -73,7 +75,7 @@ AudioMicPad processes audio locally and does not collect analytics or transmit a
 
 ## Contributing
 
-Issues and pull requests are welcome. Please keep changes focused and describe how they were tested. Do not commit generated binaries, local settings, certificates, private keys, or other secrets.
+Issues and pull requests are welcome. See the [contribution guide](CONTRIBUTING.md) for build, testing, and pull request instructions, and the [code of conduct](CODE_OF_CONDUCT.md) for participation guidelines. Report vulnerabilities through the [security policy](SECURITY.md).
 
 ## Third-party software
 
